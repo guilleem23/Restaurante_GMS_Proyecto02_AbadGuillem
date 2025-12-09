@@ -1,6 +1,23 @@
 // =============================================
-//   GESTIÓN DE USUARIOS - SweetAlert2
+//   GESTIÓN DE USUARIOS - SweetAlert2 ONLY
 // =============================================
+
+// =================== INICIALIZACIÓN ===================
+document.addEventListener('DOMContentLoaded', function () {
+    // Interceptar formularios para mostrar SweetAlert
+    const formCrear = document.getElementById('formCrear');
+    const formUsuario = document.getElementById('formUsuario');
+
+    if (formCrear) {
+        formCrear.addEventListener('submit', handleCrearUsuario);
+    }
+
+    if (formUsuario) {
+        formUsuario.addEventListener('submit', handleEditarUsuario);
+    }
+});
+
+// =================== FUNCIONES DE MODAL ===================
 
 // Función para abrir modal de edición
 function editarUsuario(usuario) {
@@ -45,7 +62,91 @@ function cerrarModalCrear() {
     document.getElementById('formCrear').reset();
 }
 
-// =================== SWEETALERT2 FUNCTIONS ===================
+// =================== SWEETALERT2 PARA FORMULARIOS ===================
+
+function handleCrearUsuario(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const username = formData.get('username');
+    const password = formData.get('password');
+    const passwordConfirm = formData.get('password_confirm');
+
+    // Validar que las contraseñas coincidan
+    if (password !== passwordConfirm) {
+        Swal.fire({
+            title: 'Error',
+            html: '<p>Las contraseñas no coinciden. Por favor verifica que ambas contraseñas sean iguales.</p>',
+            icon: 'error',
+            confirmButtonText: '<i class="fa-solid fa-check"></i> Entendido',
+            confirmButtonColor: '#e74c3c'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: '¿Crear nuevo usuario?',
+        html: `<p>¿Estás seguro de que deseas crear el usuario <strong>"${username}"</strong>?</p>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa-solid fa-user-plus"></i> Sí, crear',
+        cancelButtonText: '<i class="fa-solid fa-times"></i> Cancelar',
+        confirmButtonColor: '#27ae60',
+        cancelButtonColor: '#6c757d',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar loading y enviar formulario
+            Swal.fire({
+                title: 'Creando usuario...',
+                html: '<i class="fa-solid fa-spinner fa-spin"></i> Por favor espera',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    e.target.submit();
+                }
+            });
+        }
+    });
+}
+
+function handleEditarUsuario(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const username = formData.get('username');
+
+    Swal.fire({
+        title: '¿Guardar cambios?',
+        html: `<p>¿Deseas guardar los cambios realizados al usuario <strong>"${username}"</strong>?</p>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa-solid fa-save"></i> Sí, guardar',
+        cancelButtonText: '<i class="fa-solid fa-times"></i> Cancelar',
+        confirmButtonColor: '#3498db',
+        cancelButtonColor: '#6c757d',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar loading y enviar formulario
+            Swal.fire({
+                title: 'Guardando cambios...',
+                html: '<i class="fa-solid fa-spinner fa-spin"></i> Por favor espera',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    e.target.submit();
+                }
+            });
+        }
+    });
+}
+
+// =================== SWEETALERT2 PARA ACCIONES DE USUARIO ===================
 
 // Función para desactivar usuario (soft delete)
 function eliminarUsuario(id, username) {
@@ -176,6 +277,8 @@ function eliminarPermanente(id, username) {
         }
     });
 }
+
+// =================== EVENT LISTENERS GENERALES ===================
 
 // Cerrar modal al hacer clic fuera
 window.onclick = function (event) {
