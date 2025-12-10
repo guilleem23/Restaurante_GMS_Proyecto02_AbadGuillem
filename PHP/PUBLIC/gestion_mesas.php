@@ -211,17 +211,17 @@ function getEstadoTexto($estado) {
                 <button class="modal-close" onclick="cerrarModalCrear()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="formCrear" action="../PROCEDIMIENTOS/procesar_crear_mesa.php" method="POST">
+                <form id="formCrear" action="../PROCEDIMIENTOS/procesar_crear_mesa.php" method="POST" novalidate>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nuevo_nombre">Nombre de la Mesa *</label>
-                            <input type="text" name="nombre" id="nuevo_nombre" required placeholder="Ej: T1-5, C2-3">
+                            <input type="text" name="nombre" id="nuevo_nombre" placeholder="Ej: T1-5, C2-3">
                         </div>
 
                         <div class="form-group">
                             <label for="nueva_sala">Sala *</label>
-                            <select name="id_sala" id="nueva_sala" required>
+                            <select name="id_sala" id="nueva_sala">
                                 <option value="">Selecciona una sala</option>
                                 <?php foreach ($salas as $sala): ?>
                                     <option value="<?= $sala['id'] ?>"><?= htmlspecialchars($sala['nombre']) ?></option>
@@ -232,7 +232,7 @@ function getEstadoTexto($estado) {
 
                     <div class="form-group">
                         <label for="nuevas_sillas">Número de Sillas *</label>
-                        <input type="number" name="sillas" id="nuevas_sillas" required min="1" max="50" placeholder="Ej: 4">
+                        <input type="number" name="sillas" id="nuevas_sillas" min="1" max="50" placeholder="Ej: 4">
                         <small>Cantidad entre 1 y 50</small>
                     </div>
 
@@ -253,18 +253,18 @@ function getEstadoTexto($estado) {
                 <button class="modal-close" onclick="cerrarModalEditar()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="formEditar" action="../PROCEDIMIENTOS/procesar_editar_mesa.php" method="POST">
+                <form id="formEditar" action="../PROCEDIMIENTOS/procesar_editar_mesa.php" method="POST" novalidate>
                     <input type="hidden" name="id" id="mesa_id">
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="mesa_nombre">Nombre de la Mesa *</label>
-                            <input type="text" name="nombre" id="mesa_nombre" required>
+                            <input type="text" name="nombre" id="mesa_nombre">
                         </div>
 
                         <div class="form-group">
                             <label for="mesa_sala">Sala *</label>
-                            <select name="id_sala" id="mesa_sala" required>
+                            <select name="id_sala" id="mesa_sala">
                                 <?php foreach ($salas as $sala): ?>
                                     <option value="<?= $sala['id'] ?>"><?= htmlspecialchars($sala['nombre']) ?></option>
                                 <?php endforeach; ?>
@@ -274,7 +274,7 @@ function getEstadoTexto($estado) {
 
                     <div class="form-group">
                         <label for="mesa_sillas">Número de Sillas *</label>
-                        <input type="number" name="sillas" id="mesa_sillas" required min="1" max="50">
+                        <input type="number" name="sillas" id="mesa_sillas" min="1" max="50">
                     </div>
 
                     <div class="modal-footer">
@@ -287,6 +287,8 @@ function getEstadoTexto($estado) {
     </div>
 
     <!-- JavaScript Externo -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../JS/validar_mesa.js"></script>
     <script src="../../JS/gestion_mesas.js"></script>
 
 </body>
