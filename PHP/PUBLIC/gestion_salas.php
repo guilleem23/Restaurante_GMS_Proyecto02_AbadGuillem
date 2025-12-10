@@ -202,11 +202,11 @@ try {
                 <button class="modal-close" onclick="cerrarModalCrear()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="formCrear" action="../PROCEDIMIENTOS/procesar_crear_sala.php" method="POST" enctype="multipart/form-data">
+                <form id="formCrear" action="../PROCEDIMIENTOS/procesar_crear_sala.php" method="POST" enctype="multipart/form-data" novalidate>
                     
                     <div class="form-group">
                         <label for="nuevo_nombre">Nombre de la Sala *</label>
-                        <input type="text" name="nombre" id="nuevo_nombre" required placeholder="Ej: Terraza 4, Comedor 3">
+                        <input type="text" name="nombre" id="nuevo_nombre" placeholder="Ej: Terraza 4, Comedor 3">
                     </div>
 
                     <div class="form-group">
@@ -240,14 +240,14 @@ try {
                 <button class="modal-close" onclick="cerrarModalEditar()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="formEditar" action="../PROCEDIMIENTOS/procesar_editar_sala.php" method="POST" enctype="multipart/form-data">
+                <form id="formEditar" action="../PROCEDIMIENTOS/procesar_editar_sala.php" method="POST" enctype="multipart/form-data" novalidate>
                     <input type="hidden" name="id" id="sala_id">
                     <input type="hidden" name="imagen_fondo_actual" id="sala_imagen_fondo_actual">
                     <input type="hidden" name="imagen_mesa_actual" id="sala_imagen_mesa_actual">
                     
                     <div class="form-group">
                         <label for="sala_nombre">Nombre de la Sala *</label>
-                        <input type="text" name="nombre" id="sala_nombre" required>
+                        <input type="text" name="nombre" id="sala_nombre">
                     </div>
 
                     <div class="form-group">
@@ -282,6 +282,7 @@ try {
     </div>
 
     <!-- JavaScript Externo -->
+    <script src="../../JS/validar_sala.js"></script>
     <script src="../../JS/gestion_salas.js"></script>
 
 </body>

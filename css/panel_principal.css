@@ -453,3 +453,62 @@ html, body {
         font-size: 1.5rem;
     }
 }
+
+/* ========================================
+   ADMIN PANEL - CARDS DE GESTIÓN
+   ======================================== */
+
+/* Estilos para las tarjetas de gestión (botones grandes) */
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.admin-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 40px 30px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.admin-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-color: #ce4535;
+}
+
+.admin-card i {
+    font-size: 3.5rem;
+    color: #ce4535;
+    margin-bottom: 10px;
+}
+
+.admin-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.admin-card p {
+    font-size: 0.95rem;
+    color: #666;
+    margin: 0;
+}
+
+.admin-section {
+    margin-top: 50px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-top: 40px;
+}
