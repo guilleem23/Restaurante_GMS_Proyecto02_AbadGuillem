@@ -59,6 +59,10 @@ if (isset($_GET['error'])) {
 }
 
 try {
+    // Obtener todas las salas para el select y agrupación
+    $stmt_salas = $conn->query("SELECT id, nombre FROM salas ORDER BY nombre ASC");
+    $salas = $stmt_salas->fetchAll(PDO::FETCH_ASSOC);
+    
     // Obtener todas las mesas con información de la sala
     $stmt = $conn->query("
         SELECT 
@@ -74,15 +78,26 @@ try {
         LEFT JOIN users u ON m.asignado_por = u.id
         ORDER BY s.nombre ASC, m.nombre ASC
     ");
-    $mesas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $todas_mesas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Obtener listado de salas para el select
-    $stmt_salas = $conn->query("SELECT id, nombre FROM salas ORDER BY nombre ASC");
-    $salas = $stmt_salas->fetchAll(PDO::FETCH_ASSOC);
+    // Agrupar mesas por sala
+    $mesas_por_sala = [];
+    foreach ($todas_mesas as $mesa) {
+        $id_sala = $mesa['id_sala'];
+        if (!isset($mesas_por_sala[$id_sala])) {
+            $mesas_por_sala[$id_sala] = [
+                'nombre_sala' => $mesa['sala_nombre'],
+                'mesas' => []
+            ];
+        }
+        $mesas_por_sala[$id_sala]['mesas'][] = $mesa;
+    }
     
 } catch (PDOException $e) {
     $mensaje = "Error al cargar mesas: " . $e->getMessage();
     $tipo_mensaje = 'error';
+    $mesas_por_sala = [];
+    $salas = [];
 }
 
 // Función para obtener clase de estado
@@ -148,57 +163,67 @@ function getEstadoTexto($estado) {
                 </button>
             </div>
 
-            <div class="table-container">
-                <table class="mesas-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Sala</th>
-                            <th>Sillas</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($mesas)): ?>
-                            <tr>
-                                <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
-                                    No hay mesas registradas
-                                </td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($mesas as $mesa): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($mesa['id']) ?></td>
-                                    <td><strong><?= htmlspecialchars($mesa['nombre']) ?></strong></td>
-                                    <td>
-                                        <span class="badge-sala"><?= htmlspecialchars($mesa['sala_nombre']) ?></span>
-                                    </td>
-                                    <td>
-                                        <i class="fa-solid fa-chair"></i> <?= htmlspecialchars($mesa['sillas']) ?>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-<?= getEstadoClase($mesa['estado']) ?>">
-                                            <?= getEstadoTexto($mesa['estado']) ?>
-                                        </span>
-                                    </td>
-                                    <td class="acciones">
-                                        <button class="btn-accion btn-editar" onclick='editarMesa(<?= json_encode($mesa) ?>)' title="Editar">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                        <button class="btn-accion btn-eliminar" 
-                                                onclick="eliminarMesa(<?= $mesa['id'] ?>, '<?= htmlspecialchars($mesa['nombre']) ?>', <?= $mesa['estado'] ?>)" 
-                                                title="Eliminar">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+            <?php if (empty($mesas_por_sala)): ?>
+                <div style="text-align: center; padding: 40px; color: #999; background: #f8f9fa; border-radius: 8px;">
+                    <i class="fa-solid fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>No hay mesas registradas</p>
+                </div>
+            <?php else: ?>
+                <?php foreach ($mesas_por_sala as $id_sala => $datos_sala): ?>
+                    <div class="sala-section" style="margin-bottom: 30px;">
+                        <!-- Encabezado de Sala -->
+                        <div style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; font-size: 1.2rem;">
+                                <i class="fa-solid fa-door-open"></i> <?= htmlspecialchars($datos_sala['nombre_sala']) ?>
+                            </h3>
+                            <span style="background: rgba(255, 255, 255, 0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">
+                                <?= count($datos_sala['mesas']) ?> mesa<?= count($datos_sala['mesas']) != 1 ? 's' : '' ?>
+                            </span>
+                        </div>
+
+                        <!-- Tabla de Mesas de esta Sala -->
+                        <div class="table-container" style="border-radius: 0 0 8px 8px; border-top: none;">
+                            <table class="mesas-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Sillas</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($datos_sala['mesas'] as $mesa): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($mesa['id']) ?></td>
+                                            <td><strong><?= htmlspecialchars($mesa['nombre']) ?></strong></td>
+                                            <td>
+                                                <i class="fa-solid fa-chair"></i> <?= htmlspecialchars($mesa['sillas']) ?>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-<?= getEstadoClase($mesa['estado']) ?>">
+                                                    <?= getEstadoTexto($mesa['estado']) ?>
+                                                </span>
+                                            </td>
+                                            <td class="acciones">
+                                                <button class="btn-accion btn-editar" onclick='editarMesa(<?= json_encode($mesa) ?>)' title="Editar">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                                <button class="btn-accion btn-eliminar" 
+                                                        onclick="eliminarMesa(<?= $mesa['id'] ?>, '<?= htmlspecialchars($mesa['nombre']) ?>', <?= $mesa['estado'] ?>)" 
+                                                        title="Eliminar">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
 
     </div>

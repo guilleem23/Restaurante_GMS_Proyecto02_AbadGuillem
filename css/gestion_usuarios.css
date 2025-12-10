@@ -713,3 +713,107 @@
         margin-top: 10px;
     }
 }
+
+/* ========================================
+   RESPONSIVE MÓVIL - TABLA DE USUARIOS
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* Ocultar columnas excepto username, rol y acciones */
+    th:nth-child(1),  /* ID */
+    td:nth-child(1),
+    th:nth-child(3),  /* Nombre Completo */
+    td:nth-child(3),
+    th:nth-child(4),  /* Email */
+    td:nth-child(4),
+    th:nth-child(6),  /* Estado */
+    td:nth-child(6) {
+        display: none;
+    }
+    
+    /* Expandir el contenedor en móvil */
+    .container {
+        padding: 10px;
+        max-width: 100%;
+    }
+    
+    .stat-card {
+        padding: 15px;
+        overflow-x: visible;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Ajustar ancho de la tabla */
+    .usuarios-table {
+        width: 100%;
+        font-size: 0.8rem;
+        min-width: auto;
+    }
+    
+    /* Ajustar celdas restantes */
+    th, td {
+        padding: 6px 3px;
+        font-size: 0.8rem;
+    }
+    
+    /* Username (columna 2) */
+    th:nth-child(2),
+    td:nth-child(2) {
+        width: 35%;
+        min-width: 100px;
+    }
+    
+    /* Rol (columna 5) */
+    th:nth-child(5),
+    td:nth-child(5) {
+        width: 25%;
+        min-width: 70px;
+        text-align: center;
+    }
+    
+    /* Acciones (columna 7) */
+    th:nth-child(7),
+    td:nth-child(7) {
+        width: 40%;
+        min-width: 120px;
+        text-align: center;
+    }
+    
+    /* Botones de acción más pequeños en móvil */
+    .btn-accion {
+        padding: 4px 6px;
+        font-size: 0.7rem;
+        margin: 1px;
+        min-width: 28px;
+    }
+    
+    .btn-accion i {
+        font-size: 0.75rem;
+    }
+    
+    /* Contenedor de acciones */
+    .acciones {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2px;
+    }
+    
+    /* Asegurar que los encabezados sean visibles */
+    thead {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+    }
+    
+    /* Badges más pequeños en móvil */
+    .badge {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+}

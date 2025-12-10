@@ -475,17 +475,17 @@ function getRolBadgeClass($rol_id) {
                 <button class="modal-close" onclick="cerrarModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="formUsuario" action="../PROCEDIMIENTOS/procesar_editar_usuario.php" method="POST">
+                <form id="formUsuario" action="../PROCEDIMIENTOS/procesar_editar_usuario.php" method="POST" novalidate>
                     <input type="hidden" name="id" id="usuario_id">
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="usuario_username">Username *</label>
-                            <input type="text" name="username" id="usuario_username" required>
+                            <input type="text" name="username" id="usuario_username">
                         </div>
                         <div class="form-group">
                             <label for="usuario_rol">Rol *</label>
-                            <select name="rol" id="usuario_rol" required>
+                            <select name="rol" id="usuario_rol">
                                 <option value="1">Camarero</option>
                                 <option value="2">Administrador</option>
                                 <option value="3">Cliente</option>
@@ -496,7 +496,7 @@ function getRolBadgeClass($rol_id) {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="usuario_nombre">Nombre *</label>
-                            <input type="text" name="nombre" id="usuario_nombre" required>
+                            <input type="text" name="nombre" id="usuario_nombre">
                         </div>
                         <div class="form-group">
                             <label for="usuario_apellido">Apellido</label>
@@ -506,7 +506,7 @@ function getRolBadgeClass($rol_id) {
 
                     <div class="form-group">
                         <label for="usuario_email">Email *</label>
-                        <input type="email" name="email" id="usuario_email" required>
+                        <input type="email" name="email" id="usuario_email">
                     </div>
 
                     <div class="form-group">
@@ -532,16 +532,16 @@ function getRolBadgeClass($rol_id) {
                 <button class="modal-close" onclick="cerrarModalCrear()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="formCrear" action="../PROCEDIMIENTOS/procesar_crear_usuario.php" method="POST">
+                <form id="formCrear" action="../PROCEDIMIENTOS/procesar_crear_usuario.php" method="POST" novalidate>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nuevo_username">Username *</label>
-                            <input type="text" name="username" id="nuevo_username" required minlength="3">
+                            <input type="text" name="username" id="nuevo_username" minlength="3">
                         </div>
                         <div class="form-group">
                             <label for="nuevo_rol">Rol *</label>
-                            <select name="rol" id="nuevo_rol" required>
+                            <select name="rol" id="nuevo_rol">
                                 <option value="1">Camarero</option>
                                 <option value="2">Administrador</option>
                                 <option value="3">Cliente</option>
@@ -552,7 +552,7 @@ function getRolBadgeClass($rol_id) {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nuevo_nombre">Nombre *</label>
-                            <input type="text" name="nombre" id="nuevo_nombre" required>
+                            <input type="text" name="nombre" id="nuevo_nombre">
                         </div>
                         <div class="form-group">
                             <label for="nuevo_apellido">Apellido</label>
@@ -562,18 +562,18 @@ function getRolBadgeClass($rol_id) {
 
                     <div class="form-group">
                         <label for="nuevo_email">Email *</label>
-                        <input type="email" name="email" id="nuevo_email" required>
+                        <input type="email" name="email" id="nuevo_email">
                     </div>
 
                     <div class="form-group">
                         <label for="nuevo_password">Contraseña *</label>
-                        <input type="password" name="password" id="nuevo_password" required minlength="5">
+                        <input type="password" name="password" id="nuevo_password" minlength="5">
                         <small>Mínimo 5 caracteres</small>
                     </div>
 
                     <div class="form-group">
                         <label for="nuevo_password_confirm">Confirmar Contraseña *</label>
-                        <input type="password" name="password_confirm" id="nuevo_password_confirm" required minlength="5">
+                        <input type="password" name="password_confirm" id="nuevo_password_confirm" minlength="5">
                         <small>Debe coincidir con la contraseña</small>
                     </div>
 
@@ -588,6 +588,7 @@ function getRolBadgeClass($rol_id) {
 
     <!-- JavaScript Externo -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../JS/validar_usuario.js"></script>
     <script src="../../JS/gestion_usuarios.js"></script>
 
 </body>

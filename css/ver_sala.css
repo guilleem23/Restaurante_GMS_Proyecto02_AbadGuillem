@@ -291,3 +291,18 @@
         font-size: 0.65rem;
     }
 }
+/* ========================================
+   ESTILOS DINÁMICOS (Controlados por PHP)
+   ======================================== */
+
+/* NOTA: Los siguientes estilos se inyectan dinámicamente desde PHP
+   con las rutas de las imágenes de cada sala:
+
+   .sala-layout {
+       background-image: url('ruta_dinamica_desde_php');
+   }
+   
+   .mesa-img {
+       content: url('ruta_dinamica_desde_php');
+   }
+*/

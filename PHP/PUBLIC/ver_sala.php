@@ -86,7 +86,7 @@ try {
     <link rel="icon" type="image/png" href="../../img/icono.png">
     
     <style>
-        /* Estilos dinámicos para la sala actual */
+        /* Estilos dinámicos inyectados desde PHP con variables de la sala */
         .sala-layout {
             background-image: url('<?= $sala['imagen_fondo'] ? '../../img/salas/fondos/' . htmlspecialchars($sala['imagen_fondo']) : '../../img/fondo_panel_principal.png' ?>');
         }
@@ -95,6 +95,7 @@ try {
             content: url('<?= $sala['imagen_mesa'] ? '../../img/salas/mesas/' . htmlspecialchars($sala['imagen_mesa']) : '../../img/mesa2.png' ?>');
         }
     </style>
+
 </head>
 <body>
 
