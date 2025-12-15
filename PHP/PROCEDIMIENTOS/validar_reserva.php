@@ -11,6 +11,7 @@ function validarFechaFutura($fecha) {
     return $fecha >= $fecha_actual;
 }
 
+
 function verificarDisponibilidad($conn, $id_mesa, $fecha, $hora_inicio, $id_reserva_ignorar = null) {
     // Calcular hora fin propuesta (+1 hora 30 min)
     $inicio = new DateTime("$fecha $hora_inicio");
@@ -42,5 +43,52 @@ function verificarDisponibilidad($conn, $id_mesa, $fecha, $hora_inicio, $id_rese
     $stmt->execute($params);
     
     return $stmt->fetchColumn() == 0;
+}
+
+/**
+ * Verifica disponibilidad considerando tanto reservas como ocupaciones activas
+ * Permite reservar mesas ocupadas si no hay conflicto de horario (fuera de 1h 30min de ocupación)
+ */
+function verificarDisponibilidadConOcupaciones($conn, $id_mesa, $fecha, $hora_inicio, $id_reserva_ignorar = null) {
+    // 1. Verificar conflictos con otras reservas
+    if (!verificarDisponibilidad($conn, $id_mesa, $fecha, $hora_inicio, $id_reserva_ignorar)) {
+        return false;
+    }
+    
+    // 2. Verificar conflictos con ocupaciones activas (SOLO si la fecha es HOY)
+    if ($fecha != date('Y-m-d')) {
+        return true; // Ocupaciones solo afectan al día actual
+    }
+    
+    // Buscar ocupaciones activas de la mesa HOY
+    $sql = "SELECT inicio_ocupacion FROM ocupaciones 
+            WHERE id_mesa = :id_mesa 
+            AND DATE(inicio_ocupacion) = :fecha
+            AND final_ocupacion IS NULL";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->execute(['id_mesa' => $id_mesa, 'fecha' => $fecha]);
+    $ocupacion = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$ocupacion) {
+        return true; // No hay ocupación activa
+    }
+    
+    // Calcular rango de ocupación (inicio hasta inicio + 1h 30min)
+    $inicio_ocup = new DateTime($ocupacion['inicio_ocupacion']);
+    $fin_ocup = clone $inicio_ocup;
+    $fin_ocup->modify('+90 minutes');
+    
+    // Calcular rango de reserva propuesta
+    $inicio_reserva = new DateTime("$fecha $hora_inicio");
+    $fin_reserva = clone $inicio_reserva;
+    $fin_reserva->modify('+90 minutes');
+    
+    // Comprobar solapamiento: (InicioA < FinB) AND (FinA > InicioB)
+    if ($inicio_reserva < $fin_ocup && $fin_reserva > $inicio_ocup) {
+        return false; // Hay conflicto con ocupación activa
+    }
+    
+    return true; // No hay conflicto
 }
 ?>

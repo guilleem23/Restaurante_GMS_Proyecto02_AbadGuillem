@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    if (!verificarDisponibilidad($conn, $id_mesa, $fecha, $hora)) {
+    if (!verificarDisponibilidadConOcupaciones($conn, $id_mesa, $fecha, $hora)) {
         header("Location: " . $redirect_error . "mesa_ocupada");
         exit();
     }

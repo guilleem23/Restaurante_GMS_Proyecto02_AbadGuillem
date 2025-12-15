@@ -22,8 +22,8 @@ $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Reservas</title>
-    <link rel="stylesheet" href="../css/panel_principal.css">
-    <link rel="stylesheet" href="../css/reservas.css">
+    <link rel="stylesheet" href="../../css/panel_principal.css">
+    <link rel="stylesheet" href="../../css/reservas.css">
     <script src="https://kit.fontawesome.com/tu_kit_id.js" crossorigin="anonymous"></script> 
 </head>
 <body>

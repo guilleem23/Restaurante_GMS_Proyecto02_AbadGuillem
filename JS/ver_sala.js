@@ -14,6 +14,13 @@ function mostrarInfoMesa(elemento) {
     const salaId = elemento.dataset.salaId;
     const horaOcupacion = elemento.dataset.mesaHoraOcupacion;
 
+    // Obtener datos de reserva si existen
+    const reservaId = elemento.dataset.reservaId;
+    const reservaCliente = elemento.dataset.reservaCliente;
+    const reservaTelefono = elemento.dataset.reservaTelefono;
+    const reservaHoraInicio = elemento.dataset.reservaHoraInicio;
+    const reservaHoraFin = elemento.dataset.reservaHoraFin;
+
     // Determinar estado y color
     const estadoText = mesaEstado === 1 ? 'Libre' : 'Ocupada';
     const estadoColor = mesaEstado === 1 ? '#27ae60' : '#e74c3c';
@@ -48,6 +55,22 @@ function mostrarInfoMesa(elemento) {
         }
     }
 
+    // Si tiene reserva, mostrar información de la reserva
+    if (reservaId && reservaId !== '') {
+        const horaInicio = reservaHoraInicio ? reservaHoraInicio.substring(0, 5) : 'N/A';
+        const horaFin = reservaHoraFin ? reservaHoraFin.substring(0, 5) : 'N/A';
+
+        contenidoHTML += `
+            <hr style="margin: 15px 0; border: none; border-top: 2px solid #f39c12;">
+            <p style="margin: 10px 0; color: #f39c12; font-weight: 700; font-size: 1.1em;">
+                <i class="fa-solid fa-calendar-check"></i> RESERVA
+            </p>
+            <p style="margin: 10px 0;"><strong><i class="fa-solid fa-user"></i> Cliente:</strong> ${reservaCliente}</p>
+            <p style="margin: 10px 0;"><strong><i class="fa-solid fa-phone"></i> Teléfono:</strong> ${reservaTelefono}</p>
+            <p style="margin: 10px 0;"><strong><i class="fa-solid fa-clock"></i> Horario:</strong> ${horaInicio} - ${horaFin}</p>
+        `;
+    }
+
     contenidoHTML += `</div>`;
 
     // Determinar botones según el estado
@@ -56,7 +79,7 @@ function mostrarInfoMesa(elemento) {
     let confirmButtonColor = '';
 
     if (mesaEstado === 1) {
-        // Mesa libre - opción de asignar
+        // Mesa libre - opción de asignar (puede tener o no reserva)
         confirmButtonText = '<i class="fa-solid fa-check"></i> Asignar Mesa';
         confirmButtonColor = '#27ae60';
     } else {
@@ -89,7 +112,7 @@ function mostrarInfoMesa(elemento) {
     }).then((result) => {
         if (result.isConfirmed) {
             if (mesaEstado === 1) {
-                // Llamar a función de asignar
+                // Llamar a función de asignar (funciona igual con o sin reserva)
                 asignarMesa(mesaId, mesaNombre, salaId);
             } else if (mesaAsignadoPor == idCamarero) {
                 // Llamar a función de liberar

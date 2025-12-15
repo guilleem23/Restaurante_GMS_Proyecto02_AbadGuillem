@@ -50,6 +50,8 @@ try {
             u.nombre as camarero_nombre_real,
             o.inicio_ocupacion,
             r.id as reserva_id,
+            r.nombre_cliente,
+            r.telefono,
             r.hora_inicio as reserva_hora_inicio,
             r.hora_fin as reserva_hora_fin,
             ru.username as reserva_usuario
@@ -149,8 +151,10 @@ try {
                 <div class="mesas-grid">
                     <?php foreach ($mesas as $mesa): ?>
                         <?php 
-                            $clase_estado = $mesa['estado'] == 2 ? 'ocupada' : 'libre';
-                            $es_mi_mesa = ($mesa['asignado_por'] == $id_camarero);
+                           $clase_estado = $mesa['estado'] == 2 ? 'ocupada' : 'libre';
+                        $es_mi_mesa = ($mesa['asignado_por'] == $id_camarero);
+                        $tiene_reserva = !empty($mesa['reserva_id']);
+                        if ($tiene_reserva && $mesa['estado'] == 1) { $clase_estado .= ' reservada'; }
                         ?>
                         <div class="mesa-card <?= $clase_estado ?>" 
                              data-mesa-id="<?= $mesa['id'] ?>"
@@ -161,8 +165,13 @@ try {
                              data-mesa-asignado-por="<?= $mesa['asignado_por'] ?? '' ?>"
                              data-mesa-hora-ocupacion="<?= $mesa['inicio_ocupacion'] ?? '' ?>"
                              data-id-camarero="<?= $id_camarero ?>"
-                             data-sala-id="<?= $id_sala ?>"
-                             onclick="mostrarInfoMesa(this)">
+                            data-sala-id="<?= $id_sala ?>"
+                         data-reserva-id="<?= $mesa['reserva_id'] ?? '' ?>"
+                         data-reserva-cliente="<?= htmlspecialchars($mesa['nombre_cliente'] ?? '') ?>"
+                         data-reserva-telefono="<?= htmlspecialchars($mesa['telefono'] ?? '') ?>"
+                         data-reserva-hora-inicio="<?= $mesa['reserva_hora_inicio'] ?? '' ?>"
+                         data-reserva-hora-fin="<?= $mesa['reserva_hora_fin'] ?? '' ?>"
+                         onclick="mostrarInfoMesa(this)">
                             
                             <img src="<?= $sala['imagen_mesa'] ? '../../img/salas/mesas/' . htmlspecialchars($sala['imagen_mesa']) : '../../img/mesa2.png' ?>" 
                                  alt="Mesa" 
@@ -181,9 +190,13 @@ try {
                                 </div>
                             <?php endif; ?>
                             
-                            <div class="mesa-estado-badge">
-                                <?= $clase_estado == 'libre' ? '<i class="fa-solid fa-check"></i> Libre' : '<i class="fa-solid fa-utensils"></i> Ocupada' ?>
-                            </div>
+                           <div class="mesa-estado-badge <?= $tiene_reserva && $mesa['estado'] == 1 ? 'reservada' : '' ?>">
+                            <?php if ($tiene_reserva && $mesa['estado'] == 1): ?>
+                                <i class="fa-solid fa-calendar-check"></i> Reservada
+                            <?php else: ?>
+                                <?= $mesa['estado'] == 2 ? '<i class="fa-solid fa-utensils"></i> Ocupada' : '<i class="fa-solid fa-check"></i> Libre' ?>
+                            <?php endif; ?>
+                        </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
