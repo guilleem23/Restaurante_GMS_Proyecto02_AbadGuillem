@@ -51,8 +51,11 @@ $hora_inicio_value = isset($_GET['hora_inicio']) ? htmlspecialchars($_GET['hora_
                 <?php 
                     $err = $_GET['error'];
                     if($err == 'campos_vacios') echo "Faltan campos por rellenar.";
-                    if($err == 'telefono_invalido') echo "El teléfono debe tener 9 dígitos.";
+                    if($err == 'nombre_corto') echo "El nombre debe tener al menos 3 caracteres.";
+                    if($err == 'telefono_invalido') echo "El teléfono debe tener exactamente 9 dígitos.";
                     if($err == 'fecha_pasada') echo "La fecha no puede ser anterior a hoy.";
+                    if($err == 'hora_invalida') echo "La hora no es válida.";
+                    if($err == 'mesa_no_existe') echo "La mesa seleccionada no existe.";
                     if($err == 'mesa_ocupada') echo "La mesa está ocupada en ese horario (rango 1h 30m).";
                     if($err == 'db_error') echo "Error en la base de datos al guardar la reserva.";
                 ?>
@@ -64,22 +67,22 @@ $hora_inicio_value = isset($_GET['hora_inicio']) ? htmlspecialchars($_GET['hora_
                 
                 <div class="form-group">
                     <label>Nombre Completo:</label>
-                    <input type="text" name="nombre_cliente" class="form-control" value="<?php echo $nombre_cliente_value; ?>">
+                    <input type="text" name="nombre_cliente" id="nombre_cliente" class="form-control" value="<?php echo $nombre_cliente_value; ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Teléfono (9 dígitos):</label>
-                    <input type="text" name="telefono" class="form-control" placeholder="600123456" value="<?php echo $telefono_value; ?>">
+                    <input type="text" name="telefono" id="telefono" class="form-control" placeholder="600123456" value="<?php echo $telefono_value; ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Fecha:</label>
-                    <input type="date" name="fecha" class="form-control" min="<?php echo date('Y-m-d'); ?>" value="<?php echo $fecha_value; ?>">
+                    <input type="date" name="fecha" id="fecha" class="form-control" min="<?php echo date('Y-m-d'); ?>" value="<?php echo $fecha_value; ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Hora Inicio (Duración fija 1h 30m):</label>
-                    <input type="time" name="hora_inicio" class="form-control" value="<?php echo $hora_inicio_value; ?>">
+                    <input type="time" name="hora_inicio" id="hora_inicio" class="form-control" value="<?php echo $hora_inicio_value; ?>">
                 </div>
 
                 <div class="form-group">
@@ -97,7 +100,7 @@ $hora_inicio_value = isset($_GET['hora_inicio']) ? htmlspecialchars($_GET['hora_
 
                 <div class="form-group">
                     <label>Selecciona Mesa:</label>
-                    <select name="id_mesa" class="form-control">
+                    <select name="id_mesa" id="id_mesa" class="form-control">
                         <?php if(empty($mesas)): ?>
                             <option value="">
                                 <?php echo ($id_sala_seleccionada > 0) ? 'No hay mesas activas en esta sala' : 'Primero selecciona una sala...'; ?>
@@ -121,5 +124,6 @@ $hora_inicio_value = isset($_GET['hora_inicio']) ? htmlspecialchars($_GET['hora_
     </div>
     
     <script src="../../JS/reservas.js"></script>
+    <script src="../../JS/validar_reservas.js"></script>
 </body>
 </html>
