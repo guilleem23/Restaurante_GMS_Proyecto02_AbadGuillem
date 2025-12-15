@@ -25,6 +25,7 @@ $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="../../css/panel_principal.css">
     <link rel="stylesheet" href="../../css/reservas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <?php include 'header.php'; // Incluye el header ?>
@@ -32,12 +33,8 @@ $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container-reservas">
         <div class="header-reservas">
             <h1>Listado de Reservas</h1>
-            <a href="crear_reserva.php" class="btn-nueva">+ Nueva Reserva</a>
+            <a href="crear_reserva.php" class="btn-nueva"><i class="fa-solid fa-plus"></i> Nueva Reserva</a>
         </div>
-
-        <?php if(isset($_GET['success'])): ?>
-            <div class="alert alert-success">Operación realizada correctamente.</div>
-        <?php endif; ?>
 
         <table class="tabla-reservas">
             <thead>
@@ -67,13 +64,19 @@ $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php endif; ?>
                     </td>
                     <td class="acciones">
-                        <a href="editar_reserva.php?id=<?php echo $res['id']; ?>" class="btn-editar">Editar</a>
-                        <a href="../PROCEDIMIENTOS/procesar_eliminar_reserva.php?id=<?php echo $res['id']; ?>" class="btn-eliminar" onclick="return confirm('¿Seguro que quieres eliminar esta reserva?');">Eliminar</a>
+                        <a href="editar_reserva.php?id=<?php echo $res['id']; ?>" class="btn-editar">
+                            <i class="fa-solid fa-edit"></i> Editar
+                        </a>
+                        <a href="#" class="btn-eliminar" onclick="confirmarEliminarReserva(event, <?php echo $res['id']; ?>, '<?php echo htmlspecialchars($res['nombre_cliente']); ?>')">
+                            <i class="fa-solid fa-trash"></i> Eliminar
+                        </a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
+    
+    <script src="../../JS/alerts_reservas.js"></script>
 </body>
 </html>
