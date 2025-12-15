@@ -12,24 +12,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fecha = $_POST['fecha'] ?? '';
     $hora = $_POST['hora_inicio'] ?? '';
     
+    
     $redirect_error = "../PUBLIC/crear_reserva.php?error=";
 
-    // Validaciones
+    // === VALIDACIÓN 1: Campos vacíos ===
     if (empty($nombre) || empty($telefono) || empty($fecha) || empty($hora) || $id_mesa <= 0) {
         header("Location: " . $redirect_error . "campos_vacios");
         exit();
     }
 
+    // === VALIDACIÓN 2: Longitud del nombre ===
+    if (strlen($nombre) < 3) {
+        header("Location: " . $redirect_error . "nombre_corto");
+        exit();
+    }
+
+    // === VALIDACIÓN 3: Teléfono (9 dígitos) ===
     if (!validarTelefono($telefono)) {
         header("Location: " . $redirect_error . "telefono_invalido");
         exit();
     }
 
+    // === VALIDACIÓN 4: Fecha no puede ser pasada ===
     if (!validarFechaFutura($fecha)) {
         header("Location: " . $redirect_error . "fecha_pasada");
         exit();
     }
 
+    // === VALIDACIÓN 5: Hora válida ===
+    if (!preg_match('/^([01][0-9]|2[0-3]):[0-5][0-9]$/', $hora)) {
+        header("Location: " . $redirect_error . "hora_invalida");
+        exit();
+    }
+
+    // === VALIDACIÓN 6: Mesa existe ===
+    $stmt_mesa = $conn->prepare("SELECT id FROM mesas WHERE id = :id");
+    $stmt_mesa->execute(['id' => $id_mesa]);
+    if (!$stmt_mesa->fetch()) {
+        header("Location: " . $redirect_error . "mesa_no_existe");
+        exit();
+    }
+
+    // === VALIDACIÓN 7: Disponibilidad (conflictos con ocupaciones y otras reservas) ===
     if (!verificarDisponibilidadConOcupaciones($conn, $id_mesa, $fecha, $hora)) {
         header("Location: " . $redirect_error . "mesa_ocupada");
         exit();
