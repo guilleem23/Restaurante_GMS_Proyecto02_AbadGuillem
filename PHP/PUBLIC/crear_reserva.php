@@ -16,9 +16,10 @@ $salas = $stmtSalas->fetchAll(PDO::FETCH_ASSOC);
 $id_sala_seleccionada = isset($_GET['id_sala_filtro']) ? intval($_GET['id_sala_filtro']) : 0;
 $mesas = [];
 
-// 3. Si hay sala seleccionada, cargar mesas SIN AJAX (Renderizado Server-Side)
+// 3. Si hay sala seleccionada, cargar TODAS las mesas (no solo libres)
+// La validación de disponibilidad se hará en procesar_crear_reserva.php
 if ($id_sala_seleccionada > 0) {
-    $stmtMesas = $conn->prepare("SELECT id, nombre, sillas FROM mesas WHERE id_sala = :id AND estado = 1");
+    $stmtMesas = $conn->prepare("SELECT id, nombre, sillas FROM mesas WHERE id_sala = :id ORDER BY nombre");
     $stmtMesas->execute(['id' => $id_sala_seleccionada]);
     $mesas = $stmtMesas->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -35,8 +36,9 @@ $hora_inicio_value = isset($_GET['hora_inicio']) ? htmlspecialchars($_GET['hora_
     <meta charset="UTF-8">
     <title>Nueva Reserva</title>
     <link rel="stylesheet" href="../../css/panel_principal.css">
+    <link rel="stylesheet" href="../../css/panel_principal.css">
     <link rel="stylesheet" href="../../css/reservas.css">
-    <script src="https://kit.fontawesome.com/tu_kit_id.js" crossorigin="anonymous"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <?php include 'header.php'; // Incluye el header ?>

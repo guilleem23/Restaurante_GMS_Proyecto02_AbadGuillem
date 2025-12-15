@@ -66,7 +66,7 @@ else { $saludo = "Buenas noches"; }
     <div class="container">
         
         <!-- Título -->
-        <h1 class="dashboard-title">Panel de Administración</h1>
+        <h1 class="dashboard-title">Panel de Gestión</h1>
 
         <!-- 1. Estadísticas Rápidas (Reutilizando estilos de stat-card) -->
         <div class="stats-grid">
@@ -117,6 +117,13 @@ else { $saludo = "Buenas noches"; }
                     <i class="fa-solid fa-utensils"></i>
                     <h3>Gestionar Mesas</h3>
                     <p>Configurar mesas, sillas y distribución.</p>
+                </a>
+
+                <!-- Opción 4: Reservas -->
+                <a href="gestion_reservas.php" class="admin-card">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <h3>Gestionar Reservas</h3>
+                    <p>Administrar y consultar reservas del restaurante.</p>
                 </a>
 
             </div>

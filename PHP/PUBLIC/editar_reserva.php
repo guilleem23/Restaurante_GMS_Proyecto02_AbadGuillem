@@ -47,7 +47,7 @@ $hora_inicio_value = isset($_GET['hora_inicio']) ? htmlspecialchars($_GET['hora_
     <title>Editar Reserva</title>
     <link rel="stylesheet" href="../../css/panel_principal.css">
     <link rel="stylesheet" href="../../css/reservas.css">
-    <script src="https://kit.fontawesome.com/tu_kit_id.js" crossorigin="anonymous"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <?php include 'header.php'; // Incluye el header ?>

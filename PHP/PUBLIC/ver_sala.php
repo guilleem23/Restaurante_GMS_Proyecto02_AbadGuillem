@@ -48,18 +48,10 @@ try {
             m.asignado_por,
             u.username as camarero_nombre,
             u.nombre as camarero_nombre_real,
-            o.inicio_ocupacion,
-            r.id as reserva_id,
-            r.nombre_cliente,
-            r.telefono,
-            r.hora_inicio as reserva_hora_inicio,
-            r.hora_fin as reserva_hora_fin,
-            ru.username as reserva_usuario
+            o.inicio_ocupacion
         FROM mesas m
         LEFT JOIN users u ON m.asignado_por = u.id
         LEFT JOIN ocupaciones o ON m.id = o.id_mesa AND o.final_ocupacion IS NULL
-        LEFT JOIN reservas r ON m.id = r.id_mesa AND r.fecha = CURDATE()
-        LEFT JOIN users ru ON r.id_usuario = ru.id
         WHERE m.id_sala = :sala
         ORDER BY m.id ASC
     ");
@@ -117,7 +109,14 @@ try {
                 </a>
                 <h1 class="sala-title"><?= htmlspecialchars($sala['nombre']) ?></h1>
             </div>
-            
+            <div style="display: flex; gap: 10px;">
+                <a href="ver_reservas.php?id=<?= $id_sala ?>" class="btn-salas">
+                    <i class="fa-solid fa-calendar-check"></i> Ver Reservas
+                </a>
+                <a href="gestion_salas.php" class="btn-salas">
+                    <i class="fa-solid fa-door-open"></i> Gestionar Salas
+                </a>
+            </div>
             <!-- Dropdown selector de salas -->
             <div class="dropdown">
                 <button class="btn btn-salas dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -153,8 +152,6 @@ try {
                         <?php 
                            $clase_estado = $mesa['estado'] == 2 ? 'ocupada' : 'libre';
                         $es_mi_mesa = ($mesa['asignado_por'] == $id_camarero);
-                        $tiene_reserva = !empty($mesa['reserva_id']);
-                        if ($tiene_reserva && $mesa['estado'] == 1) { $clase_estado .= ' reservada'; }
                         ?>
                         <div class="mesa-card <?= $clase_estado ?>" 
                              data-mesa-id="<?= $mesa['id'] ?>"
@@ -166,11 +163,6 @@ try {
                              data-mesa-hora-ocupacion="<?= $mesa['inicio_ocupacion'] ?? '' ?>"
                              data-id-camarero="<?= $id_camarero ?>"
                             data-sala-id="<?= $id_sala ?>"
-                         data-reserva-id="<?= $mesa['reserva_id'] ?? '' ?>"
-                         data-reserva-cliente="<?= htmlspecialchars($mesa['nombre_cliente'] ?? '') ?>"
-                         data-reserva-telefono="<?= htmlspecialchars($mesa['telefono'] ?? '') ?>"
-                         data-reserva-hora-inicio="<?= $mesa['reserva_hora_inicio'] ?? '' ?>"
-                         data-reserva-hora-fin="<?= $mesa['reserva_hora_fin'] ?? '' ?>"
                          onclick="mostrarInfoMesa(this)">
                             
                             <img src="<?= $sala['imagen_mesa'] ? '../../img/salas/mesas/' . htmlspecialchars($sala['imagen_mesa']) : '../../img/mesa2.png' ?>" 
@@ -190,12 +182,9 @@ try {
                                 </div>
                             <?php endif; ?>
                             
-                           <div class="mesa-estado-badge <?= $tiene_reserva && $mesa['estado'] == 1 ? 'reservada' : '' ?>">
-                            <?php if ($tiene_reserva && $mesa['estado'] == 1): ?>
-                                <i class="fa-solid fa-calendar-check"></i> Reservada
-                            <?php else: ?>
-                                <?= $mesa['estado'] == 2 ? '<i class="fa-solid fa-utensils"></i> Ocupada' : '<i class="fa-solid fa-check"></i> Libre' ?>
-                            <?php endif; ?>
+                            
+                        <div class="mesa-estado-badge">
+                            <?= $mesa['estado'] == 2 ? '<i class="fa-solid fa-utensils"></i> Ocupada' : '<i class="fa-solid fa-check"></i> Libre' ?>
                         </div>
                         </div>
                     <?php endforeach; ?>
