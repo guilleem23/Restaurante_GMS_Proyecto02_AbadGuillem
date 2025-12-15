@@ -53,10 +53,14 @@ if (!empty($password) && strlen($password) < 5) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR SI EL USUARIO EXISTE ---
     $stmt = $conn->prepare("SELECT id FROM users WHERE id = :id");
     $stmt->execute(['id' => $id]);
     if (!$stmt->fetch()) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=user_not_found");
         exit();
     }
@@ -65,6 +69,7 @@ try {
     $stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE username = :username AND id != :id");
     $stmt->execute(['username' => $username, 'id' => $id]);
     if ($stmt->fetchColumn() > 0) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=duplicate_username");
         exit();
     }
@@ -73,6 +78,7 @@ try {
     $stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email AND id != :id");
     $stmt->execute(['email' => $email, 'id' => $id]);
     if ($stmt->fetchColumn() > 0) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=duplicate_email");
         exit();
     }
@@ -93,7 +99,7 @@ try {
             WHERE id = :id
         ");
 
-        $resultado = $stmt->execute([
+        $stmt->execute([
             'username' => $username,
             'nombre' => $nombre,
             'apellido' => $apellido,
@@ -114,7 +120,7 @@ try {
             WHERE id = :id
         ");
 
-        $resultado = $stmt->execute([
+        $stmt->execute([
             'username' => $username,
             'nombre' => $nombre,
             'apellido' => $apellido,
@@ -124,16 +130,19 @@ try {
         ]);
     }
 
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_usuarios.php?success=updated");
-    } else {
-        header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_usuarios.php?success=updated");
+    exit();
 
 } catch (PDOException $e) {
-    // Error de base de datos
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al editar usuario: " . $e->getMessage());
     header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
+    exit();
 }
 
 exit();

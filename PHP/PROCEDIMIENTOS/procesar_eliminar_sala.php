@@ -17,6 +17,9 @@ if ($id <= 0) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR QUE LA SALA EXISTE Y OBTENER IMÁGENES ---
     $stmt = $conn->prepare("
         SELECT nombre, imagen_fondo, imagen_mesa 
@@ -27,6 +30,7 @@ try {
     $sala = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$sala) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_salas.php?error=sala_not_found");
         exit();
     }
@@ -37,30 +41,34 @@ try {
     $tiene_mesas = $stmt->fetchColumn() > 0;
     
     if ($tiene_mesas) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_salas.php?error=has_tables");
         exit();
     }
     
     // --- ELIMINAR SALA DE LA BASE DE DATOS ---
     $stmt = $conn->prepare("DELETE FROM salas WHERE id = :id");
-    $resultado = $stmt->execute(['id' => $id]);
+    $stmt->execute(['id' => $id]);
     
-    if ($resultado) {
-        // --- ELIMINAR IMÁGENES DEL SERVIDOR ---
-        if ($sala['imagen_fondo']) {
-            @unlink("../../img/salas/fondos/" . $sala['imagen_fondo']);
-        }
-        if ($sala['imagen_mesa']) {
-            @unlink("../../img/salas/mesas/" . $sala['imagen_mesa']);
-        }
-        
-        header("Location: ../PUBLIC/gestion_salas.php?success=deleted");
-    } else {
-        header("Location: ../PUBLIC/gestion_salas.php?error=db_error");
+    // Confirmar transacción
+    $conn->commit();
+    
+    // --- ELIMINAR IMÁGENES DEL SERVIDOR ---
+    if ($sala['imagen_fondo']) {
+        @unlink("../../img/salas/fondos/" . $sala['imagen_fondo']);
+    }
+    if ($sala['imagen_mesa']) {
+        @unlink("../../img/salas/mesas/" . $sala['imagen_mesa']);
     }
     
+    header("Location: ../PUBLIC/gestion_salas.php?success=deleted");
+    exit();
+    
 } catch (PDOException $e) {
-    // Error de base de datos
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al eliminar sala: " . $e->getMessage());
     
     // Si es error de foreign key constraint
@@ -69,6 +77,7 @@ try {
     } else {
         header("Location: ../PUBLIC/gestion_salas.php?error=db_error");
     }
+    exit();
 }
 
 exit();

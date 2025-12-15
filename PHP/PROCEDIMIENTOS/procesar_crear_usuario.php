@@ -52,10 +52,14 @@ if (!in_array($rol, [1, 2, 3])) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR SI EL USERNAME YA EXISTE ---
     $stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE username = :username");
     $stmt->execute(['username' => $username]);
     if ($stmt->fetchColumn() > 0) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=duplicate_username");
         exit();
     }
@@ -64,6 +68,7 @@ try {
     $stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
     $stmt->execute(['email' => $email]);
     if ($stmt->fetchColumn() > 0) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=duplicate_email");
         exit();
     }
@@ -77,7 +82,7 @@ try {
         VALUES (:username, :nombre, :apellido, :email, :password_hash, :rol, NOW())
     ");
 
-    $resultado = $stmt->execute([
+    $stmt->execute([
         'username' => $username,
         'nombre' => $nombre,
         'apellido' => $apellido,
@@ -86,16 +91,19 @@ try {
         'rol' => $rol
     ]);
 
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_usuarios.php?success=created");
-    } else {
-        header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_usuarios.php?success=created");
+    exit();
 
 } catch (PDOException $e) {
-    // Error de base de datos
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al crear usuario: " . $e->getMessage());
     header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
+    exit();
 }
 
 exit();

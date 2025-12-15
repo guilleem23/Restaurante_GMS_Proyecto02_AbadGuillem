@@ -73,10 +73,14 @@ function procesarImagen($file, $tipo) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR SI EL NOMBRE YA EXISTE ---
     $stmt = $conn->prepare("SELECT COUNT(*) FROM salas WHERE nombre = :nombre");
     $stmt->execute(['nombre' => $nombre]);
     if ($stmt->fetchColumn() > 0) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_salas.php?error=duplicate_name");
         exit();
     }
@@ -88,6 +92,7 @@ try {
     if (isset($_FILES['imagen_fondo'])) {
         $result = procesarImagen($_FILES['imagen_fondo'], 'fondo');
         if ($result === false) {
+            $conn->rollBack();
             header("Location: ../PUBLIC/gestion_salas.php?error=invalid_image");
             exit();
         }
@@ -101,6 +106,7 @@ try {
             if ($imagen_fondo) {
                 @unlink("../../img/salas/fondos/{$imagen_fondo}");
             }
+            $conn->rollBack();
             header("Location: ../PUBLIC/gestion_salas.php?error=invalid_image");
             exit();
         }
@@ -113,23 +119,23 @@ try {
         VALUES (:nombre, :imagen_fondo, :imagen_mesa, 0)
     ");
     
-    $resultado = $stmt->execute([
+    $stmt->execute([
         'nombre' => $nombre,
         'imagen_fondo' => $imagen_fondo,
         'imagen_mesa' => $imagen_mesa
     ]);
     
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_salas.php?success=created");
-    } else {
-        // Eliminar imágenes si falló la inserción
-        if ($imagen_fondo) @unlink("../../img/salas/fondos/{$imagen_fondo}");
-        if ($imagen_mesa) @unlink("../../img/salas/mesas/{$imagen_mesa}");
-        header("Location: ../PUBLIC/gestion_salas.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_salas.php?success=created");
+    exit();
     
 } catch (PDOException $e) {
-    // Error de base de datos
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
+    
     error_log("Error al crear sala: " . $e->getMessage());
     
     // Eliminar imágenes subidas
@@ -137,6 +143,7 @@ try {
     if (isset($imagen_mesa) && $imagen_mesa) @unlink("../../img/salas/mesas/{$imagen_mesa}");
     
     header("Location: ../PUBLIC/gestion_salas.php?error=db_error");
+    exit();
 }
 
 exit();

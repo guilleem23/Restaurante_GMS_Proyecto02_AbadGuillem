@@ -23,12 +23,16 @@ if ($id == $_SESSION['id_usuario']) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR QUE EL USUARIO EXISTE ---
     $stmt = $conn->prepare("SELECT id, username FROM users WHERE id = :id");
     $stmt->execute(['id' => $id]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$usuario) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=user_not_found");
         exit();
     }
@@ -38,16 +42,18 @@ try {
     // Si hay relaciones, deberán manejarse (CASCADE, SET NULL, etc.)
     
     $stmt = $conn->prepare("DELETE FROM users WHERE id = :id");
-    $resultado = $stmt->execute(['id' => $id]);
+    $stmt->execute(['id' => $id]);
 
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_usuarios.php?success=deleted_permanent");
-    } else {
-        header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_usuarios.php?success=deleted_permanent");
+    exit();
 
 } catch (PDOException $e) {
-    // Error de base de datos (posiblemente por foreign key constraint)
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al eliminar permanentemente usuario: " . $e->getMessage());
     
     // Si es error de foreign key, devolver mensaje específico
@@ -56,6 +62,7 @@ try {
     } else {
         header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
     }
+    exit();
 }
 
 exit();

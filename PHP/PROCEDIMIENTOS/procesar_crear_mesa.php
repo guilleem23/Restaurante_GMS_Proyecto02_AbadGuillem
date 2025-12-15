@@ -26,10 +26,14 @@ if (empty($nombre) || $id_sala <= 0 || $sillas < 1 || $sillas > 50) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR QUE LA SALA EXISTE ---
     $stmt = $conn->prepare("SELECT id FROM salas WHERE id = :id");
     $stmt->execute(['id' => $id_sala]);
     if (!$stmt->fetch()) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_mesas.php?error=invalid_data");
         exit();
     }
@@ -40,21 +44,25 @@ try {
         VALUES (:nombre, :id_sala, :sillas, 1)
     ");
     
-    $resultado = $stmt->execute([
+    $stmt->execute([
         'nombre' => $nombre,
         'id_sala' => $id_sala,
         'sillas' => $sillas
     ]);
     
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_mesas.php?success=created");
-    } else {
-        header("Location: ../PUBLIC/gestion_mesas.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_mesas.php?success=created");
+    exit();
     
 } catch (PDOException $e) {
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al crear mesa: " . $e->getMessage());
     header("Location: ../PUBLIC/gestion_mesas.php?error=db_error");
+    exit();
 }
 
 exit();
