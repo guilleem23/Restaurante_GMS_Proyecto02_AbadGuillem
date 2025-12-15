@@ -16,21 +16,29 @@ $salas = $stmtSalas->fetchAll(PDO::FETCH_ASSOC);
 $id_sala_seleccionada = isset($_GET['id_sala_filtro']) ? intval($_GET['id_sala_filtro']) : 0;
 $mesas = [];
 
-// 3. Si hay sala seleccionada, cargar mesas SIN AJAX (Renderizado Server-Side)
+// 3. Si hay sala seleccionada, cargar TODAS las mesas (no solo libres)
+// La validación de disponibilidad se hará en procesar_crear_reserva.php
 if ($id_sala_seleccionada > 0) {
-    $stmtMesas = $conn->prepare("SELECT id, nombre, sillas FROM mesas WHERE id_sala = :id AND estado = 1");
+    $stmtMesas = $conn->prepare("SELECT id, nombre, sillas FROM mesas WHERE id_sala = :id ORDER BY nombre");
     $stmtMesas->execute(['id' => $id_sala_seleccionada]);
     $mesas = $stmtMesas->fetchAll(PDO::FETCH_ASSOC);
 }
+
+// 4. Capturar valores del formulario de los parámetros GET (para preservar al cambiar sala)
+$nombre_cliente_value = isset($_GET['nombre_cliente']) ? htmlspecialchars($_GET['nombre_cliente']) : '';
+$telefono_value = isset($_GET['telefono']) ? htmlspecialchars($_GET['telefono']) : '';
+$fecha_value = isset($_GET['fecha']) ? htmlspecialchars($_GET['fecha']) : '';
+$hora_inicio_value = isset($_GET['hora_inicio']) ? htmlspecialchars($_GET['hora_inicio']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Nueva Reserva</title>
-    <link rel="stylesheet" href="../css/panel_principal.css">
-    <link rel="stylesheet" href="../css/reservas.css">
-    <script src="https://kit.fontawesome.com/tu_kit_id.js" crossorigin="anonymous"></script> 
+    <link rel="stylesheet" href="../../css/panel_principal.css">
+    <link rel="stylesheet" href="../../css/panel_principal.css">
+    <link rel="stylesheet" href="../../css/reservas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <?php include 'header.php'; // Incluye el header ?>
@@ -56,22 +64,22 @@ if ($id_sala_seleccionada > 0) {
                 
                 <div class="form-group">
                     <label>Nombre Completo:</label>
-                    <input type="text" name="nombre_cliente" class="form-control" required>
+                    <input type="text" name="nombre_cliente" class="form-control" value="<?php echo $nombre_cliente_value; ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Teléfono (9 dígitos):</label>
-                    <input type="text" name="telefono" class="form-control" placeholder="600123456" required>
+                    <input type="text" name="telefono" class="form-control" placeholder="600123456" value="<?php echo $telefono_value; ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Fecha:</label>
-                    <input type="date" name="fecha" class="form-control" min="<?php echo date('Y-m-d'); ?>" required>
+                    <input type="date" name="fecha" class="form-control" min="<?php echo date('Y-m-d'); ?>" value="<?php echo $fecha_value; ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Hora Inicio (Duración fija 1h 30m):</label>
-                    <input type="time" name="hora_inicio" class="form-control" required>
+                    <input type="time" name="hora_inicio" class="form-control" value="<?php echo $hora_inicio_value; ?>">
                 </div>
 
                 <div class="form-group">
@@ -89,7 +97,7 @@ if ($id_sala_seleccionada > 0) {
 
                 <div class="form-group">
                     <label>Selecciona Mesa:</label>
-                    <select name="id_mesa" class="form-control" required>
+                    <select name="id_mesa" class="form-control">
                         <?php if(empty($mesas)): ?>
                             <option value="">
                                 <?php echo ($id_sala_seleccionada > 0) ? 'No hay mesas activas en esta sala' : 'Primero selecciona una sala...'; ?>
@@ -112,6 +120,6 @@ if ($id_sala_seleccionada > 0) {
         </div>
     </div>
     
-    <script src="../js/reservas.js"></script>
+    <script src="../../JS/reservas.js"></script>
 </body>
 </html>

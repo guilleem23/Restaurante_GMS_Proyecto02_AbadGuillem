@@ -56,10 +56,10 @@ try {
     $resultado = $stmt->execute(['mesa_id' => $mesa_id]);
     
     if ($resultado) {
-        // --- ACTUALIZAR REGISTRO DE OCUPACIÓN (cerrar) ---
-        $stmt = $conn->prepare("
-            UPDATE ocupaciones 
-            SET final_ocupacion = NOW()
+        // --- BUSCAR OCUPACIÓN ACTIVA Y VERIFICAR SI TIENE RESERVA ASOCIADA ---
+        $stmt_ocupacion = $conn->prepare("
+            SELECT id, id_reserva
+            FROM ocupaciones 
             WHERE id_mesa = :mesa
             AND id_camarero = :camarero
             AND final_ocupacion IS NULL
@@ -67,10 +67,32 @@ try {
             LIMIT 1
         ");
         
-        $stmt->execute([
+        $stmt_ocupacion->execute([
             'mesa' => $mesa_id,
             'camarero' => $id_camarero
         ]);
+        
+        $ocupacion = $stmt_ocupacion->fetch(PDO::FETCH_ASSOC);
+        
+        // --- ACTUALIZAR REGISTRO DE OCUPACIÓN (cerrar) ---
+        $stmt = $conn->prepare("
+            UPDATE ocupaciones 
+            SET final_ocupacion = NOW()
+            WHERE id = :id_ocupacion
+        ");
+        
+        $stmt->execute(['id_ocupacion' => $ocupacion['id']]);
+        
+        // Si la ocupación estaba asociada a una reserva, reactivarla
+        if ($ocupacion && $ocupacion['id_reserva']) {
+            $stmt_reactivar = $conn->prepare("
+                UPDATE reservas 
+                SET estado = 'activa' 
+                WHERE id = :id_reserva 
+                AND estado = 'finalizada'
+            ");
+            $stmt_reactivar->execute(['id_reserva' => $ocupacion['id_reserva']]);
+        }
         
         header("Location: ../PUBLIC/ver_sala.php?id=" . $mesa['id_sala'] . "&success=mesa_liberada");
     } else {

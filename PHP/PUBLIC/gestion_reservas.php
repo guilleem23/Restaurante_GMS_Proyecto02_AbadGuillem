@@ -22,9 +22,9 @@ $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Reservas</title>
-    <link rel="stylesheet" href="../css/panel_principal.css">
-    <link rel="stylesheet" href="../css/reservas.css">
-    <script src="https://kit.fontawesome.com/tu_kit_id.js" crossorigin="anonymous"></script> 
+    <link rel="stylesheet" href="../../css/panel_principal.css">
+    <link rel="stylesheet" href="../../css/reservas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <?php include 'header.php'; // Incluye el header ?>
@@ -47,17 +47,25 @@ $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th>Cliente</th>
                     <th>Teléfono</th>
                     <th>Sala / Mesa</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach($reservas as $res): ?>
-                <tr>
+                <tr class="<?= $res['estado'] == 'finalizada' ? 'reserva-finalizada' : '' ?>">
                     <td><?php echo date('d/m/Y', strtotime($res['fecha'])); ?></td>
                     <td><?php echo substr($res['hora_inicio'],0,5) . ' - ' . substr($res['hora_fin'],0,5); ?></td>
                     <td><?php echo htmlspecialchars($res['nombre_cliente']); ?></td>
                     <td><?php echo htmlspecialchars($res['telefono']); ?></td>
                     <td><?php echo htmlspecialchars($res['nombre_sala'] . ' - ' . $res['nombre_mesa']); ?></td>
+                    <td>
+                        <?php if ($res['estado'] == 'finalizada'): ?>
+                            <span class="badge-estado finalizada">Finalizada</span>
+                        <?php else: ?>
+                            <span class="badge-estado activa">Activa</span>
+                        <?php endif; ?>
+                    </td>
                     <td class="acciones">
                         <a href="editar_reserva.php?id=<?php echo $res['id']; ?>" class="btn-editar">Editar</a>
                         <a href="../PROCEDIMIENTOS/procesar_eliminar_reserva.php?id=<?php echo $res['id']; ?>" class="btn-eliminar" onclick="return confirm('¿Seguro que quieres eliminar esta reserva?');">Eliminar</a>

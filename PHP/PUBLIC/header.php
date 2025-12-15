@@ -28,14 +28,17 @@ if ($hora >= 6 && $hora < 12) {
         <a href="index.php" class="nav-link">
             <i class="fa-solid fa-house"></i> Inicio
         </a>
+        <a href="selector_salas.php" class="nav-link">
+            <i class="fa-solid fa-door-open"></i> Ver Salas
+        </a>
         <a href="historico.php" class="nav-link">
             <i class="fa-solid fa-chart-bar"></i> Histórico
         </a>
-        <?php if (in_array(($rol ?? 1), [1,2])): ?>
-            <a href="gestion_reservas.php" class="nav-link">
-                <i class="fa-solid fa-calendar-check"></i> Reservas
+        <?php if ($rol == 2): ?>
+            <a href="panel_administrador.php" class="nav-link">
+                <i class="fa-solid fa-gear"></i> Gestión
             </a>
-<?php endif; ?>
+        <?php endif; ?>
     </div>
 
     <form method="post" action="../PROCEDIMIENTOS/logout.php">

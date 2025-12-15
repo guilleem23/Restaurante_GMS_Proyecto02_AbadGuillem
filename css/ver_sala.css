@@ -132,6 +132,18 @@
     border-color: #c0392b;
 }
 
+/* --- MESAS RESERVADAS --- */
+.mesa-card.reservada {
+    border-color: #f39c12;
+    background: rgba(255, 243, 205, 0.95);
+}
+
+.mesa-card.reservada:hover {
+    background: rgba(255, 243, 205, 1);
+    border-color: #e67e22;
+    box-shadow: 0 8px 25px rgba(243, 156, 18, 0.4);
+}
+
 .mesa-img {
     width: 60px;
     height: 60px;
@@ -186,6 +198,11 @@
 
 .mesa-card.ocupada .mesa-estado-badge {
     background-color: #e74c3c;
+    color: white;
+}
+
+.mesa-estado-badge.reservada {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
     color: white;
 }
 
@@ -291,6 +308,7 @@
         font-size: 0.65rem;
     }
 }
+
 /* ========================================
    ESTILOS DINÁMICOS (Controlados por PHP)
    ======================================== */
