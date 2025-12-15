@@ -23,18 +23,23 @@ if ($id == $_SESSION['id_usuario']) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR QUE EL USUARIO EXISTE ---
     $stmt = $conn->prepare("SELECT id, fecha_baja FROM users WHERE id = :id");
     $stmt->execute(['id' => $id]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$usuario) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=user_not_found");
         exit();
     }
 
     // Si ya está eliminado, no hacer nada
     if ($usuario['fecha_baja'] !== null) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=already_deleted");
         exit();
     }
@@ -47,18 +52,21 @@ try {
         WHERE id = :id
     ");
 
-    $resultado = $stmt->execute(['id' => $id]);
+    $stmt->execute(['id' => $id]);
 
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_usuarios.php?success=deleted");
-    } else {
-        header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_usuarios.php?success=deleted");
+    exit();
 
 } catch (PDOException $e) {
-    // Error de base de datos
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al eliminar usuario: " . $e->getMessage());
     header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
+    exit();
 }
 
 exit();

@@ -17,18 +17,23 @@ if ($id <= 0) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR QUE EL USUARIO EXISTE Y ESTÁ INACTIVO ---
     $stmt = $conn->prepare("SELECT id, fecha_baja FROM users WHERE id = :id");
     $stmt->execute(['id' => $id]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$usuario) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=user_not_found");
         exit();
     }
 
     // Verificar que está inactivo
     if ($usuario['fecha_baja'] === null) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_usuarios.php?error=user_already_active");
         exit();
     }
@@ -40,18 +45,21 @@ try {
         WHERE id = :id
     ");
 
-    $resultado = $stmt->execute(['id' => $id]);
+    $stmt->execute(['id' => $id]);
 
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_usuarios.php?success=reactivated");
-    } else {
-        header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_usuarios.php?success=reactivated");
+    exit();
 
 } catch (PDOException $e) {
-    // Error de base de datos
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al reactivar usuario: " . $e->getMessage());
     header("Location: ../PUBLIC/gestion_usuarios.php?error=db_error");
+    exit();
 }
 
 exit();

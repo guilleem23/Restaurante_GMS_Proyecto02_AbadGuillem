@@ -17,35 +17,44 @@ if ($id <= 0) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR QUE LA MESA EXISTE Y OBTENER SU ESTADO ---
     $stmt = $conn->prepare("SELECT id, estado FROM mesas WHERE id = :id");
     $stmt->execute(['id' => $id]);
     $mesa = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$mesa) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_mesas.php?error=mesa_not_found");
         exit();
     }
     
     // --- VERIFICAR SI LA MESA ESTÁ OCUPADA ---
     if ($mesa['estado'] == 2) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_mesas.php?error=table_occupied");
         exit();
     }
     
     // --- ELIMINAR MESA DE LA BASE DE DATOS ---
     $stmt = $conn->prepare("DELETE FROM mesas WHERE id = :id");
-    $resultado = $stmt->execute(['id' => $id]);
+    $stmt->execute(['id' => $id]);
     
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_mesas.php?success=deleted");
-    } else {
-        header("Location: ../PUBLIC/gestion_mesas.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_mesas.php?success=deleted");
+    exit();
     
 } catch (PDOException $e) {
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al eliminar mesa: " . $e->getMessage());
     header("Location: ../PUBLIC/gestion_mesas.php?error=db_error");
+    exit();
 }
 
 exit();

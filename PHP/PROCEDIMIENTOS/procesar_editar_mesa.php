@@ -27,10 +27,14 @@ if ($id <= 0 || empty($nombre) || $id_sala <= 0 || $sillas < 1 || $sillas > 50) 
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR QUE LA MESA EXISTE ---
     $stmt = $conn->prepare("SELECT id FROM mesas WHERE id = :id");
     $stmt->execute(['id' => $id]);
     if (!$stmt->fetch()) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_mesas.php?error=mesa_not_found");
         exit();
     }
@@ -39,6 +43,7 @@ try {
     $stmt = $conn->prepare("SELECT id FROM salas WHERE id = :id");
     $stmt->execute(['id' => $id_sala]);
     if (!$stmt->fetch()) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_mesas.php?error=invalid_data");
         exit();
     }
@@ -52,22 +57,26 @@ try {
         WHERE id = :id
     ");
     
-    $resultado = $stmt->execute([
+    $stmt->execute([
         'nombre' => $nombre,
         'id_sala' => $id_sala,
         'sillas' => $sillas,
         'id' => $id
     ]);
     
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_mesas.php?success=updated");
-    } else {
-        header("Location: ../PUBLIC/gestion_mesas.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_mesas.php?success=updated");
+    exit();
     
 } catch (PDOException $e) {
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al editar mesa: " . $e->getMessage());
     header("Location: ../PUBLIC/gestion_mesas.php?error=db_error");
+    exit();
 }
 
 exit();

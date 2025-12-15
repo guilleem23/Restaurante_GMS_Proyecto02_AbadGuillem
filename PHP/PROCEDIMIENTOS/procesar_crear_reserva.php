@@ -59,8 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Insertar
+    // Insertar con transacción
     try {
+        // Iniciar transacción
+        $conn->beginTransaction();
+        
         $dt = new DateTime("$fecha $hora");
         $dt->modify('+90 minutes');
         $hora_fin = $dt->format('H:i:s');
@@ -76,9 +79,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'hfin' => $hora_fin
         ]);
 
+        // Confirmar transacción
+        $conn->commit();
+        
         header("Location: ../PUBLIC/gestion_reservas.php?success=creado");
+        exit();
     } catch (PDOException $e) {
+        // Revertir cambios en caso de error
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
         header("Location: " . $redirect_error . "db_error");
+        exit();
     }
 }
 ?>

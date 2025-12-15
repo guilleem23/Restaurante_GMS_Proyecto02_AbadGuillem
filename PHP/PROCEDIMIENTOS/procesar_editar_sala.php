@@ -80,10 +80,14 @@ function procesarImagen($file, $tipo, $imagen_anterior = null) {
 }
 
 try {
+    // Iniciar transacción
+    $conn->beginTransaction();
+    
     // --- VERIFICAR QUE LA SALA EXISTE ---
     $stmt = $conn->prepare("SELECT id FROM salas WHERE id = :id");
     $stmt->execute(['id' => $id]);
     if (!$stmt->fetch()) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_salas.php?error=sala_not_found");
         exit();
     }
@@ -92,6 +96,7 @@ try {
     $stmt = $conn->prepare("SELECT COUNT(*) FROM salas WHERE nombre = :nombre AND id != :id");
     $stmt->execute(['nombre' => $nombre, 'id' => $id]);
     if ($stmt->fetchColumn() > 0) {
+        $conn->rollBack();
         header("Location: ../PUBLIC/gestion_salas.php?error=duplicate_name");
         exit();
     }
@@ -103,6 +108,7 @@ try {
     if (isset($_FILES['imagen_fondo'])) {
         $result = procesarImagen($_FILES['imagen_fondo'], 'fondo', $imagen_fondo_actual);
         if ($result === false) {
+            $conn->rollBack();
             header("Location: ../PUBLIC/gestion_salas.php?error=invalid_image");
             exit();
         }
@@ -112,6 +118,7 @@ try {
     if (isset($_FILES['imagen_mesa'])) {
         $result = procesarImagen($_FILES['imagen_mesa'], 'mesa', $imagen_mesa_actual);
         if ($result === false) {
+            $conn->rollBack();
             header("Location: ../PUBLIC/gestion_salas.php?error=invalid_image");
             exit();
         }
@@ -127,23 +134,26 @@ try {
         WHERE id = :id
     ");
     
-    $resultado = $stmt->execute([
+    $stmt->execute([
         'nombre' => $nombre,
         'imagen_fondo' => $imagen_fondo,
         'imagen_mesa' => $imagen_mesa,
         'id' => $id
     ]);
     
-    if ($resultado) {
-        header("Location: ../PUBLIC/gestion_salas.php?success=updated");
-    } else {
-        header("Location: ../PUBLIC/gestion_salas.php?error=db_error");
-    }
+    // Confirmar transacción
+    $conn->commit();
+    header("Location: ../PUBLIC/gestion_salas.php?success=updated");
+    exit();
     
 } catch (PDOException $e) {
-    // Error de base de datos
+    // Revertir transacción en caso de error
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     error_log("Error al editar sala: " . $e->getMessage());
     header("Location: ../PUBLIC/gestion_salas.php?error=db_error");
+    exit();
 }
 
 exit();
