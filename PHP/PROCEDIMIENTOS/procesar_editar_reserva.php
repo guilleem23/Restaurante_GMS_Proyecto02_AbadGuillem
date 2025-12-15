@@ -40,9 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // === VALIDACIÓN 5: Fecha no puede ser pasada ===
-    if (!validarFechaFutura($fecha)) {
-        header("Location: " . $url_error . "fecha_pasada");
+    // === VALIDACIÓN 4: Fecha y hora no pueden ser pasadas ===
+    if (!validarFechaHoraFutura($fecha, $hora)) {
+        header("Location: " . $url_error . "fecha_hora_pasada");
         exit();
     }
 

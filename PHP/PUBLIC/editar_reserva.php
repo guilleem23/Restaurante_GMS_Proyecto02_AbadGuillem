@@ -63,6 +63,7 @@ $hora_inicio_value = isset($_GET['hora_inicio']) ? htmlspecialchars($_GET['hora_
                     if($err == 'nombre_corto') echo "El nombre debe tener al menos 3 caracteres.";
                     if($err == 'telefono_invalido') echo "El teléfono debe tener exactamente 9 dígitos.";
                     if($err == 'fecha_pasada') echo "La fecha no puede ser anterior a hoy.";
+                    if($err == 'fecha_hora_pasada') echo "La fecha y hora de la reserva no pueden ser anteriores a la fecha y hora actual.";
                     if($err == 'hora_invalida') echo "La hora no es válida.";
                     if($err == 'mesa_no_existe') echo "La mesa seleccionada no existe.";
                     if($err == 'mesa_ocupada') echo "La mesa está ocupada en ese horario (rango 1h 30m).";

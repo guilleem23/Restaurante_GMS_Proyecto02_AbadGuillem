@@ -33,9 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // === VALIDACIÓN 4: Fecha no puede ser pasada ===
-    if (!validarFechaFutura($fecha)) {
-        header("Location: " . $redirect_error . "fecha_pasada");
+    // === VALIDACIÓN 4: Fecha y hora no pueden ser pasadas ===
+    if (!validarFechaHoraFutura($fecha, $hora)) {
+        header("Location: " . $redirect_error . "fecha_hora_pasada");
         exit();
     }
 

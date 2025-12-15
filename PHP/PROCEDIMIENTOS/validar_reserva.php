@@ -11,6 +11,21 @@ function validarFechaFutura($fecha) {
     return $fecha >= $fecha_actual;
 }
 
+/**
+ * Valida que la fecha y hora de la reserva no sean anteriores a la fecha y hora actual
+ * @param string $fecha Fecha en formato Y-m-d
+ * @param string $hora Hora en formato H:i o H:i:s
+ * @return bool True si la fecha/hora es válida (no es pasada), False si es pasada
+ */
+function validarFechaHoraFutura($fecha, $hora) {
+    // Combinar fecha y hora en un DateTime
+    $fechaHora = new DateTime("$fecha $hora");
+    $ahora = new DateTime();
+    
+    // La reserva debe ser igual o posterior a ahora
+    return $fechaHora >= $ahora;
+}
+
 
 function verificarDisponibilidad($conn, $id_mesa, $fecha, $hora_inicio, $id_reserva_ignorar = null) {
     // Calcular hora fin propuesta (+1 hora 30 min)

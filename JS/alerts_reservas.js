@@ -102,6 +102,9 @@ document.addEventListener('DOMContentLoaded', function () {
             case 'fecha_pasada':
                 mensaje = 'La fecha de la reserva no puede ser anterior a hoy.';
                 break;
+            case 'fecha_hora_pasada':
+                mensaje = 'La fecha y hora de la reserva no pueden ser anteriores a la fecha y hora actual.';
+                break;
             case 'hora_invalida':
                 mensaje = 'La hora especificada no es válida.';
                 break;
