@@ -22,10 +22,12 @@ try {
             s.nombre, 
             s.imagen_fondo,
             s.imagen_mesa,
-            COUNT(m.id) as total_mesas,
-            SUM(CASE WHEN m.estado = 2 THEN 1 ELSE 0 END) as mesas_ocupadas
+            COUNT(DISTINCT m.id) as total_mesas,
+            SUM(CASE WHEN m.estado = 2 THEN 1 ELSE 0 END) as mesas_ocupadas,
+            COUNT(DISTINCT r.id) as total_reservas
         FROM salas s
         LEFT JOIN mesas m ON s.id = m.id_sala
+        LEFT JOIN reservas r ON m.id = r.id_mesa AND r.fecha = CURDATE()
         GROUP BY s.id
         ORDER BY s.nombre ASC
     ");
@@ -90,6 +92,12 @@ try {
                                     <span>Todas libres</span>
                                 <?php endif; ?>
                             </div>
+                            <?php if ($sala['total_reservas'] > 0): ?>
+                            <div class="sala-stat">
+                                <i class="fa-solid fa-calendar-check" style="color: #f39c12;"></i>
+                                <span><?= $sala['total_reservas'] ?> reserva<?= $sala['total_reservas'] != 1 ? 's' : '' ?> hoy</span>
+                            </div>
+                            <?php endif; ?>
                         </div>
                         <div class="sala-accion">
                             <span>Ver Sala</span>
