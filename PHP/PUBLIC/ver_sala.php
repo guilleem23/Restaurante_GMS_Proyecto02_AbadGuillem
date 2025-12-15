@@ -48,10 +48,16 @@ try {
             m.asignado_por,
             u.username as camarero_nombre,
             u.nombre as camarero_nombre_real,
-            o.inicio_ocupacion
+            o.inicio_ocupacion,
+            r.id as reserva_id,
+            r.hora_inicio as reserva_hora_inicio,
+            r.hora_fin as reserva_hora_fin,
+            ru.username as reserva_usuario
         FROM mesas m
         LEFT JOIN users u ON m.asignado_por = u.id
         LEFT JOIN ocupaciones o ON m.id = o.id_mesa AND o.final_ocupacion IS NULL
+        LEFT JOIN reservas r ON m.id = r.id_mesa AND r.fecha = CURDATE()
+        LEFT JOIN users ru ON r.id_usuario = ru.id
         WHERE m.id_sala = :sala
         ORDER BY m.id ASC
     ");
